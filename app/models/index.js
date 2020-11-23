@@ -14,9 +14,11 @@ const sequelize = new Sequelize(
 
 //models
 import userModel from './user.js';
+import noteModel from './note.js'
 
 const models = {
     User: userModel(sequelize, Sequelize),
+    Note: noteModel(sequelize, Sequelize)
 };
 
 Object.keys(models).forEach(key => {
