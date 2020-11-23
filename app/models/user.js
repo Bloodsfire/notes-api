@@ -23,5 +23,9 @@ export default function (sequelize, DataTypes) {
         }
     });
 
+    User.associate = (models) => {
+        User.hasMany(models.Note, { onDelete: 'CASCADE' });
+    };
+
     return User;
 };

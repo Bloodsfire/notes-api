@@ -15,5 +15,9 @@ export default function (sequelize, DataTypes) {
         }
     });
 
+    Note.associate = (models) => {
+        Note.belongsTo(models.User, { foreignKey: 'userId' });
+    };
+
     return Note;
 };
