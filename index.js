@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 
 import { sequelize } from './app/models/index.js';
+import routes from './app/routes/index.js';
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ app.use(bodyParser.json());
 
 app.use(cors());
 app.options('*', cors());
+
+routes(app);
 
 sequelize.sync({force: true}).then(() => {
     app.listen(port, () => {
