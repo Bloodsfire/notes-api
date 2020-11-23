@@ -3,11 +3,12 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
+import { sequelize } from './app/models/index.js';
+
 dotenv.config();
+
 const app = express();
-
 const port = process.env.PORT || 3000;
-
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
