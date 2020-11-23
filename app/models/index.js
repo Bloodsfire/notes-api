@@ -12,7 +12,12 @@ const sequelize = new Sequelize(
     }
 );
 
-const models = {};
+//models
+import userModel from './user.js';
+
+const models = {
+    User: userModel(sequelize, Sequelize),
+};
 
 Object.keys(models).forEach(key => {
     if ('associate' in models[key]) {
@@ -22,6 +27,6 @@ Object.keys(models).forEach(key => {
 
 export {
     sequelize,
-    Sequelize
+    models
 }
 
