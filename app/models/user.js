@@ -1,3 +1,5 @@
+import bcrypt from 'bcrypt';
+
 export default function (sequelize, DataTypes) {
     const User = sequelize.define('user', {
         id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -20,6 +22,12 @@ export default function (sequelize, DataTypes) {
             validate: {
                 len: [5]
             }
+        }
+    });
+
+    User.beforeSave(user => {
+        if (user.password) {
+            user.password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(10), null);
         }
     });
 

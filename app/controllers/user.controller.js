@@ -4,6 +4,7 @@ import { models } from '../models/index.js';
 const { User } = models;
 
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 const tokenLifetime = 24 * 60 * 60 * 1000; // 1 day in ms
 const tokenSecret = 'notes-api';
@@ -104,21 +105,23 @@ function generateJWT(id) {
     }, tokenSecret);
 }
 
+async function isValidPassword(pass, userPass) {
+    return await bcrypt.compare(pass, userPass);
+}
+
 async function login(req, res) {
     const { email, username, password } = req.body;
 
     try {
-        let user = await getByEmailOrUsername(email, username);
+        const user = await getByEmailOrUsername(email, username);
+        const isSuccess = user && await isValidPassword(password, user.password);
 
-        if (!user) {
-            errorHandler(res, 401, 'Wrong email or username')
-        }
-        else if (user.password === password) {
+        if (isSuccess) {
             const token = generateJWT(user.id);
             res.send({message: 'Authentication successful', token})
         }
         else {
-            errorHandler(res, 401, 'Wrong password')
+            errorHandler(res, 401, 'Wrong credentials')
         }
     }
     catch (e) {
