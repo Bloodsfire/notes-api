@@ -1,14 +1,20 @@
 import errorHandler from "../utils/errorHandler.js";
+import Sequelize from "sequelize";
 import { models } from '../models/index.js';
 const { User } = models;
 
+import jwt from 'jsonwebtoken';
+
+const tokenLifetime = 24 * 60 * 60 * 1000; // 1 day in ms
+const tokenSecret = 'notes-api';
 
 export {
     create,
     findOne,
     findAll,
     update,
-    remove
+    remove,
+    login
 }
 
 
@@ -72,5 +78,50 @@ async function remove (req, res) {
     }
     catch (e) {
         errorHandler(res, 500, `Error updating User with id=${id}`)
+    }
+}
+
+async function getByEmailOrUsername(email='', username='') {
+    const query = {
+        where: {
+            [Sequelize.Op.or]: [
+                {email},
+                {username}
+            ]
+        },
+        raw: true
+    };
+
+    return await User.findOne(query);
+}
+
+function generateJWT(id) {
+    const exp = Date.now() + tokenLifetime;
+
+    return jwt.sign({
+        id,
+        exp: Math.floor(exp / 1000)
+    }, tokenSecret);
+}
+
+async function login(req, res) {
+    const { email, username, password } = req.body;
+
+    try {
+        let user = await getByEmailOrUsername(email, username);
+
+        if (!user) {
+            errorHandler(res, 401, 'Wrong email or username')
+        }
+        else if (user.password === password) {
+            const token = generateJWT(user.id);
+            res.send({message: 'Authentication successful', token})
+        }
+        else {
+            errorHandler(res, 401, 'Wrong password')
+        }
+    }
+    catch (e) {
+        errorHandler(res, 401, e.message)
     }
 }
